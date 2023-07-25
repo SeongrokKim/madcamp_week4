@@ -16,13 +16,10 @@ public class PlayerInput : MonoBehaviour
     public Slider throwSlider2;
 
     private bool isCharging = true;
-    public Text angleText;
-    
+
     public LineRenderer lineRenderer1;
     public LineRenderer lineRenderer2;
 
-    public float minAngle = 15f;
-    public float maxAngle = 75f;
     private bool isMouseClicked = false;
 
     //  ÷  ̾       ư     ൿ ϱ           
@@ -35,17 +32,18 @@ public class PlayerInput : MonoBehaviour
     //    ĳ          콺 Ŭ      ¸             
     private bool isMouseClickedMeemee = false;
     private bool isMouseClickedRokrok = false;
-    
+
     // 플레이어 체력
     public float playerHealth;
     public float maxHealth = 100f;
 
+    public Vector3 throwPosition;
+
     private void Start()
     {
         // 게이지 초기화
-        throwSlider.value = 0f;
-        playerHealth=maxHealth;
-        
+        playerHealth = maxHealth;
+
         //         ʱ ȭ
         throwSlider1.value = 0f;
 
@@ -62,8 +60,14 @@ public class PlayerInput : MonoBehaviour
 
         //                        ǥ   ϱ         Ƽ         
         lineRenderer2.material = new Material(Shader.Find("Sprites/Default"));
+
+        lineRenderer2.enabled = false;
+
+        if (meemee != null)
+            throwPosition = new Vector3(1.3f, 1, 0);
+        else throwPosition = new Vector3(-1.3f, 1, 0);
     }
-    
+
     // 체력 감소 처리
     public void TakeDamage(int damage)
     {
@@ -80,31 +84,37 @@ public class PlayerInput : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(0))
         {
-            if (currentPlayer == 1)
+            if (currentPlayer % 2 == 1)
                 isMouseClickedMeemee = true;
-            else if (currentPlayer == 0)
+            else if (currentPlayer % 2 == 0)
+            {
                 isMouseClickedRokrok = true;
+                if (currentPlayer == 0)
+                {
+                    isMouseClickedMeemee = true;
+                }
+            }
 
-            currentPlayer = (currentPlayer + 1) % 2;
+            currentPlayer = currentPlayer + 1;
         }
 
-        //  ÷  ̾       ư     ൿ
-        if (currentPlayer == 1)
+        // 플레이어 번갈아가며 행동
+        if (currentPlayer % 2 == 1)
         {
             PlayerAction(meemee, throwSlider1, lineRenderer1, isMouseClickedMeemee, ref currentThrowForceMeemee);
         }
-        else if (currentPlayer == 0)
+        else if (currentPlayer % 2 == 0)
         {
             PlayerAction(rokrok, throwSlider2, lineRenderer2, isMouseClickedRokrok, ref currentThrowForceRokrok);
         }
 
         if (!isMouseClicked)
         {
-            if (currentPlayer == 0)
+            if (currentPlayer % 2 == 0)
             {
                 UpdateLineRenderer(meemee, lineRenderer1);
             }
-            else if (currentPlayer == 1)
+            else if (currentPlayer % 2 == 1)
             {
                 UpdateLineRenderer(rokrok, lineRenderer2);
             }
@@ -153,57 +163,72 @@ public class PlayerInput : MonoBehaviour
     //       ڵ        ϰ      
     void ThrowProjectile(GameObject player, Slider slider, LineRenderer lineRenderer, ref float currentThrowForce)
     {
-        GameObject projectile = Instantiate(KeyboardPrefab, transform.position+ new Vector3(1.3f, 1, 0), Quaternion.identity);
+        // 투사체를 생성하고 캐릭터가 보는 방향으로 던짐
+        GameObject projectile = Instantiate(KeyboardPrefab, player.transform.position, Quaternion.identity);
 
-        Vector3 direction;
+        Vector3 direction = (lineRenderer.GetPosition(1) - player.transform.position).normalized;
 
-        if (isMouseClicked) //    콺   Ŭ        ¶  
-        {
-            //    콺 Ŭ                        Ͽ   ߻ 
-            direction = (lineRenderer.GetPosition(1) - player.transform.position).normalized;
-        }
-        else
-        {
-            //    콺   Ŭ                            ϰ   ߻          
-            Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            direction = (mousePosition - player.transform.position).normalized;
-        }
 
+        // 투사체에 힘을 가해 던짐
         Rigidbody2D projectileRb = projectile.GetComponent<Rigidbody2D>();
         projectileRb.AddForce(direction * currentThrowForce, ForceMode2D.Impulse);
 
         Weapon keyboardScript = projectile.GetComponent<Weapon>();
         keyboardScript.owner = this;
         keyboardScript.isLive=true;
-        
+
+        // 게이지 초기화
         currentThrowForce = 0f;
         slider.value = 0f;
+        lineRenderer.enabled = false;
     }
 
     //       ڵ        ϰ      
     void UpdateLineRenderer(GameObject player, LineRenderer lineRenderer)
     {
+        lineRenderer.enabled = true;
         Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         Vector3 direction = (mousePosition - player.transform.position).normalized;
 
-        //    콺         ȿ   ִ                          (   콺           ִ   Ÿ          )
+        // 마우스가 범위 안에 있는 경우 점선의 끝 지점 설정 (마우스 방향으로 최대 거리까지 설정)
         float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-        angle = Mathf.Clamp(angle, minAngle, maxAngle);
-        Vector3 endPoint = player.transform.position + Quaternion.Euler(0f, 0f, angle) * Vector3.right * 6f;
+        if (player == meemee)
+        {
+            if (15f < angle && angle < 75f)
+            {
+                Vector3 endPoint = player.transform.position + Quaternion.Euler(0f, 0f, angle) * Vector3.right * 6f;
 
-        // LineRenderer        ǥ         Ʈ
-        lineRenderer.SetPositions(new Vector3[] { player.transform.position, endPoint });
+                // LineRenderer의 점선 표시 업데이트
+                lineRenderer.SetPositions(new Vector3[] { player.transform.position, endPoint });
+            }
+        }
+        else
+        {
+            if (105f < angle && angle < 165f)
+            {
+                Vector3 endPoint = player.transform.position + Quaternion.Euler(0f, 0f, angle) * Vector3.right * 6f;
+
+                // LineRenderer의 점선 표시 업데이트
+                lineRenderer.SetPositions(new Vector3[] { player.transform.position, endPoint });
+            }
+        }
+
     }
-   
-    public void ProcessCollision(Collision2D collision, string collisionPoint )
+
+    public void ProcessCollision(Collision2D collision, string collisionPoint)
     {
         Debug.Log("PlayerInput에서 충돌 처리");
         Weapon weapon = collision.gameObject.GetComponent<Weapon>();
+        
+        Debug.Log(weapon);
+        Debug.Log(weapon.owner+ "owner");
+        Debug.Log(weapon.isLive);
 
         // 충돌한 객체에 Weapon 컴포넌트가 있는 경우
         if (weapon != null && weapon.isLive == true && weapon.owner != this)
         {
-            weapon.isLive=false;
+            
+            weapon.isLive = false;
             // 충돌 시의 속도를 가져옴
             Vector3 collisionVelocity = collision.relativeVelocity;
 
@@ -216,5 +241,5 @@ public class PlayerInput : MonoBehaviour
         }
     }
 
-    
+
 }
