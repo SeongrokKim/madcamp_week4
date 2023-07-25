@@ -59,9 +59,7 @@ public class PlayerInput : MonoBehaviour
         windStrength = Random.Range(10,500);
         windDirection = (Random.value > 0.5f);
 
-        if (meemee != null)
-            throwPosition = new Vector3(1.3f, 1, 0);
-        else throwPosition = new Vector3(-1.3f, 1, 0);
+        
     }
 
     public void TakeDamage(int damage)
@@ -155,9 +153,12 @@ public class PlayerInput : MonoBehaviour
  
     void ThrowProjectile(GameObject player, Slider slider, LineRenderer lineRenderer, ref float currentThrowForce)
     {
-        GameObject projectile = Instantiate(KeyboardPrefab, player.transform.position, Quaternion.identity);
+        if (player == meemee)
+            throwPosition = new Vector3(2f, 1, 0);
+        else throwPosition = new Vector3(-2f, 1, 0);
+        GameObject projectile = Instantiate(KeyboardPrefab, transform.position + throwPosition, Quaternion.identity);
 
-        Vector3 direction = (lineRenderer.GetPosition(1) - player.transform.position).normalized;
+        Vector3 direction = (lineRenderer.GetPosition(1) - transform.position).normalized;
 
         Rigidbody2D projectileRb = projectile.GetComponent<Rigidbody2D>();
         float windForce = windDirection ? windStrength : -windStrength;

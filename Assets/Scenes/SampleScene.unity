@@ -285,7 +285,6 @@ MonoBehaviour:
   playerHealth: 100
   maxHealth: 100
   throwPosition: {x: 0, y: 0, z: 0}
-  windManager: {fileID: 0}
   windStrength: 0
   windDirection: 0
 --- !u!212 &143965966
@@ -1239,7 +1238,6 @@ MonoBehaviour:
   playerHealth: 100
   maxHealth: 100
   throwPosition: {x: 0, y: 0, z: 0}
-  windManager: {fileID: 0}
   windStrength: 0
   windDirection: 0
 --- !u!1 &614859210
