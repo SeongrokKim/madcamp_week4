@@ -1,17 +1,17 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI; // Unity UI를 사용하기 위한 네임스페이스 추가
+using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class PlayerInput : MonoBehaviour
 {
 
-    public GameObject KeyboardPrefab; //     ü                     
-    public float maxThrowForce = 5f; //     ü            ִ   ִ    
+    public GameObject KeyboardPrefab;                  
+    public float maxThrowForce = 5f; 
     private float currentThrowForceMeemee = 0f;
     private float currentThrowForceRokrok = 0f;
-
-    // Slider UI                 
+    
     public Slider throwSlider1;
     public Slider throwSlider2;
 
@@ -21,61 +21,56 @@ public class PlayerInput : MonoBehaviour
     public LineRenderer lineRenderer2;
 
     private bool isMouseClicked = false;
-
-    //  ÷  ̾       ư     ൿ ϱ           
+          
     private int currentPlayer = 0;
-
-    //         ĳ   ͸   Ҵ        
+  
     public GameObject meemee;
     public GameObject rokrok;
-
-    //    ĳ          콺 Ŭ      ¸             
+           
     private bool isMouseClickedMeemee = false;
     private bool isMouseClickedRokrok = false;
 
-    // 플레이어 체력
     public float playerHealth;
     public float maxHealth = 100f;
 
     public Vector3 throwPosition;
 
+    public float windStrength;
+    public bool windDirection;
+
     private void Start()
     {
-        // 게이지 초기화
         playerHealth = maxHealth;
 
-        //         ʱ ȭ
         throwSlider1.value = 0f;
 
-        //              ۰               ( ʱ⿡   ĳ       ġ     ĳ       ġ       )
         lineRenderer1.SetPositions(new Vector3[] { transform.position, transform.position });
 
-        //                        ǥ   ϱ         Ƽ         
         lineRenderer1.material = new Material(Shader.Find("Sprites/Default"));
-        //         ʱ ȭ
+        
         throwSlider2.value = 0f;
 
-        //              ۰               ( ʱ⿡   ĳ       ġ     ĳ       ġ       )
         lineRenderer2.SetPositions(new Vector3[] { transform.position, transform.position });
-
-        //                        ǥ   ϱ         Ƽ         
+        
         lineRenderer2.material = new Material(Shader.Find("Sprites/Default"));
 
         lineRenderer2.enabled = false;
+
+        windStrength = Random.Range(10,500);
+        windDirection = (Random.value > 0.5f);
 
         if (meemee != null)
             throwPosition = new Vector3(1.3f, 1, 0);
         else throwPosition = new Vector3(-1.3f, 1, 0);
     }
 
-    // 체력 감소 처리
     public void TakeDamage(int damage)
     {
         playerHealth -= damage;
         if (playerHealth <= 0)
         {
             Debug.Log("Player is dead.");
-            // 플레이어 사망 처리
+            SceneManager.LoadScene("GameOver");
         }
 
     }
@@ -98,7 +93,6 @@ public class PlayerInput : MonoBehaviour
             currentPlayer = currentPlayer + 1;
         }
 
-        // 플레이어 번갈아가며 행동
         if (currentPlayer % 2 == 1)
         {
             PlayerAction(meemee, throwSlider1, lineRenderer1, isMouseClickedMeemee, ref currentThrowForceMeemee);
@@ -147,50 +141,47 @@ public class PlayerInput : MonoBehaviour
 
             isMouseClicked = false;
             currentThrowForce = 0f;
+            windStrength = Random.Range(10,500);
+            windDirection = (Random.value > 0.5f);
         }
     }
-
-    //       ڵ        ϰ      
+  
     void ChargeThrow(Slider slider, ref float currentThrowForce)
     {
-        // 힘의 크기를 게이지로 조절
         currentThrowForce = Mathf.Clamp(currentThrowForce + Time.deltaTime * maxThrowForce, 0f, maxThrowForce);
-        // Slider UI                   ݿ 
         slider.value = currentThrowForce / maxThrowForce;
 
     }
-
-    //       ڵ        ϰ      
+ 
     void ThrowProjectile(GameObject player, Slider slider, LineRenderer lineRenderer, ref float currentThrowForce)
     {
-        // 투사체를 생성하고 캐릭터가 보는 방향으로 던짐
         GameObject projectile = Instantiate(KeyboardPrefab, player.transform.position, Quaternion.identity);
 
         Vector3 direction = (lineRenderer.GetPosition(1) - player.transform.position).normalized;
 
-
-        // 투사체에 힘을 가해 던짐
         Rigidbody2D projectileRb = projectile.GetComponent<Rigidbody2D>();
-        projectileRb.AddForce(direction * currentThrowForce, ForceMode2D.Impulse);
+        float windForce = windDirection ? windStrength : -windStrength;
+        Debug.Log(windForce + "windforce");
+        Vector3 force = direction * currentThrowForce + new Vector3(windForce, 0, 0);
+        
+        Debug.Log(force + "force");
+        projectileRb.AddForce(force, ForceMode2D.Impulse);
 
         Weapon keyboardScript = projectile.GetComponent<Weapon>();
         keyboardScript.owner = this;
         keyboardScript.isLive=true;
 
-        // 게이지 초기화
         currentThrowForce = 0f;
         slider.value = 0f;
         lineRenderer.enabled = false;
     }
-
-    //       ڵ        ϰ      
+ 
     void UpdateLineRenderer(GameObject player, LineRenderer lineRenderer)
     {
         lineRenderer.enabled = true;
         Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         Vector3 direction = (mousePosition - player.transform.position).normalized;
 
-        // 마우스가 범위 안에 있는 경우 점선의 끝 지점 설정 (마우스 방향으로 최대 거리까지 설정)
         float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
         if (player == meemee)
         {
@@ -198,7 +189,6 @@ public class PlayerInput : MonoBehaviour
             {
                 Vector3 endPoint = player.transform.position + Quaternion.Euler(0f, 0f, angle) * Vector3.right * 6f;
 
-                // LineRenderer의 점선 표시 업데이트
                 lineRenderer.SetPositions(new Vector3[] { player.transform.position, endPoint });
             }
         }
@@ -208,7 +198,6 @@ public class PlayerInput : MonoBehaviour
             {
                 Vector3 endPoint = player.transform.position + Quaternion.Euler(0f, 0f, angle) * Vector3.right * 6f;
 
-                // LineRenderer의 점선 표시 업데이트
                 lineRenderer.SetPositions(new Vector3[] { player.transform.position, endPoint });
             }
         }
@@ -224,15 +213,12 @@ public class PlayerInput : MonoBehaviour
         Debug.Log(weapon.owner+ "owner");
         Debug.Log(weapon.isLive);
 
-        // 충돌한 객체에 Weapon 컴포넌트가 있는 경우
         if (weapon != null && weapon.isLive == true && weapon.owner != this)
         {
             
             weapon.isLive = false;
-            // 충돌 시의 속도를 가져옴
             Vector3 collisionVelocity = collision.relativeVelocity;
 
-            // Weapon 컴포넌트의 CalculateDamage 함수를 호출하여 데미지를 계산
             int damage = weapon.CalculateDamage(collisionPoint, collisionVelocity);
 
             TakeDamage(damage);
