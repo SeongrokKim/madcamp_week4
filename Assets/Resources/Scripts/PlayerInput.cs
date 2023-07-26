@@ -6,27 +6,25 @@ using UnityEngine.SceneManagement;
 
 public class PlayerInput : MonoBehaviour
 {
+    public GameObject KeyboardPrefab;
+    public GameObject MousePrefab;
+    public float maxThrowForce = 5f;
+    public float currentThrowForceMeemee = 0f;
+    public float currentThrowForceRokrok = 0f;
 
-    public GameObject KeyboardPrefab;                  
-    public float maxThrowForce = 5f; 
-    private float currentThrowForceMeemee = 0f;
-    private float currentThrowForceRokrok = 0f;
-    
     public Slider throwSlider1;
     public Slider throwSlider2;
-
-    private bool isCharging = true;
-
+    public bool isCharging = true;
     public LineRenderer lineRenderer1;
     public LineRenderer lineRenderer2;
 
     private bool isMouseClicked = false;
-          
-    private int currentPlayer = 0;
-  
+
+    public int currentPlayer = 0;
+
     public GameObject meemee;
     public GameObject rokrok;
-           
+
     private bool isMouseClickedMeemee = false;
     private bool isMouseClickedRokrok = false;
 
@@ -37,6 +35,27 @@ public class PlayerInput : MonoBehaviour
 
     public float windStrength;
     public bool windDirection;
+
+    public bool useDoubleThrowItem = false;
+
+    public static PlayerInput Instance { get; private set; }
+    public List<Button> itemButtons = new List<Button>();
+
+    public Button selectedItemButton = null;
+
+    public bool isSelectingItem = false;
+
+    private bool isItemClicked = false;
+
+    public DoubleThrowItem doubleThrowItem;
+
+    public GameObject itemButtonPrefab;
+
+    public bool IsSelectingItem
+    {
+        get { return isSelectingItem; }
+        set { isSelectingItem = value; }
+
     public float speed = 5f; // 이동 속도
     public float minX = -1f; // x축으로 이동할 수 있는 최소값
     public float maxX = 1f; // x축으로 이동할 수 있는 최대값
@@ -45,6 +64,7 @@ public class PlayerInput : MonoBehaviour
     void Awake()
     {
         anim=GetComponent<Animator>();
+
     }
 
     private void Start()
@@ -56,19 +76,21 @@ public class PlayerInput : MonoBehaviour
         lineRenderer1.SetPositions(new Vector3[] { transform.position, transform.position });
 
         lineRenderer1.material = new Material(Shader.Find("Sprites/Default"));
-        
+
         throwSlider2.value = 0f;
 
         lineRenderer2.SetPositions(new Vector3[] { transform.position, transform.position });
-        
+
         lineRenderer2.material = new Material(Shader.Find("Sprites/Default"));
 
         lineRenderer2.enabled = false;
 
-        windStrength = Random.Range(10,500);
+        windStrength = Random.Range(10, 300);
+
         windDirection = (Random.value > 0.5f);
 
-        
+        Instance = this;
+        doubleThrowItem = GetComponent<DoubleThrowItem>();
     }
 
     public void TakeDamage(int damage)
@@ -86,17 +108,37 @@ public class PlayerInput : MonoBehaviour
         else
         {
             StartCoroutine(AfterSecondsAndStand(2f));
+
         }
+        if (currentPlayer % 2 == 1)
+            isMouseClickedMeemee = true;
+        else if (currentPlayer % 2 == 0)
+        {
+            isMouseClickedRokrok = true;
+            if (currentPlayer == 0)
+            {
+                isMouseClickedMeemee = true;
+            }
+        }
+
     }
 
     void SetPlayerPosition(float newX)
     {
         newX = Mathf.Clamp(newX, minX, maxX);
         transform.position = new Vector3(newX, transform.position.y, transform.position.z);
+
     }
 
     private void Update()
     {
+        RaycastHit2D hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(Input.mousePosition), Vector2.zero);
+        if (hit.collider != null && hit.collider.CompareTag("DoubleThrowItemy"))
+        {
+            isItemClicked = true;
+            return;
+        }
+
         float moveX = 0f;
         if (meemee != null)
         {
@@ -118,6 +160,7 @@ public class PlayerInput : MonoBehaviour
         // 새로운 X 좌표를 범위 내로 제한하여 플레이어를 이동시킴
         SetPlayerPosition(newX);
 
+
         if (Input.GetMouseButtonDown(0))
         {
             if (currentPlayer % 2 == 1)
@@ -134,15 +177,13 @@ public class PlayerInput : MonoBehaviour
             currentPlayer = currentPlayer + 1;
         }
 
-        
-
         if (currentPlayer % 2 == 1)
         {
-            PlayerAction(meemee, throwSlider1, lineRenderer1, isMouseClickedMeemee, ref currentThrowForceMeemee);
+            PlayerAction(meemee, throwSlider1, lineRenderer1, isMouseClickedMeemee, ref currentThrowForceMeemee, KeyboardPrefab);
         }
         else if (currentPlayer % 2 == 0)
         {
-            PlayerAction(rokrok, throwSlider2, lineRenderer2, isMouseClickedRokrok, ref currentThrowForceRokrok);
+            PlayerAction(rokrok, throwSlider2, lineRenderer2, isMouseClickedRokrok, ref currentThrowForceRokrok, MousePrefab);
         }
 
         if (!isMouseClicked)
@@ -156,10 +197,12 @@ public class PlayerInput : MonoBehaviour
                 UpdateLineRenderer(rokrok, lineRenderer2);
             }
         }
+        isItemClicked = false;
 
     }
 
-    private void PlayerAction(GameObject player, Slider slider, LineRenderer lineRenderer, bool isMouseClicked, ref float currentThrowForce)
+    private void PlayerAction(GameObject player, Slider slider, LineRenderer lineRenderer, bool isMouseClicked, ref float currentThrowForce, GameObject prefab)
+
     {
         if (Input.GetMouseButton(0) && isCharging == true && isMouseClicked)
         {
@@ -167,8 +210,15 @@ public class PlayerInput : MonoBehaviour
             ChargeThrow(slider, ref currentThrowForce);
             if (currentThrowForce >= maxThrowForce)
             {
-                
-                ThrowProjectile(player, slider, lineRenderer, ref currentThrowForce);
+                if (useDoubleThrowItem)
+                {
+                    ThrowProjectileTwice(player, slider, lineRenderer, ref currentThrowForce, prefab);
+                    useDoubleThrowItem = false;
+                }
+                else
+                {
+                    ThrowProjectile(player, slider, lineRenderer, ref currentThrowForce, prefab);
+                }
                 isCharging = false;
 
             }
@@ -177,7 +227,15 @@ public class PlayerInput : MonoBehaviour
         {
             if (isCharging == true)
             {
-                ThrowProjectile(player, slider, lineRenderer, ref currentThrowForce);
+                if (useDoubleThrowItem)
+                {
+                    ThrowProjectileTwice(player, slider, lineRenderer, ref currentThrowForce, prefab);
+                    useDoubleThrowItem = false;
+                }
+                else
+                {
+                    ThrowProjectile(player, slider, lineRenderer, ref currentThrowForce, prefab);
+                }
             }
             else
             {
@@ -186,49 +244,46 @@ public class PlayerInput : MonoBehaviour
 
             isMouseClicked = false;
             currentThrowForce = 0f;
-            windStrength = Random.Range(10,500);
+            windStrength = Random.Range(10, 300);
             windDirection = (Random.value > 0.5f);
         }
     }
-  
+
     void ChargeThrow(Slider slider, ref float currentThrowForce)
     {
         currentThrowForce = Mathf.Clamp(currentThrowForce + Time.deltaTime * maxThrowForce, 0f, maxThrowForce);
+
         slider.value = currentThrowForce / maxThrowForce;
 
     }
- 
-    void ThrowProjectile(GameObject player, Slider slider, LineRenderer lineRenderer, ref float currentThrowForce)
+    public void ThrowProjectile(GameObject player, Slider slider, LineRenderer lineRenderer, ref float currentThrowForce, GameObject prefab)
+
     {
         if (player == meemee)
             throwPosition = new Vector3(2f, 1, 0);
         else throwPosition = new Vector3(-2f, 1, 0);
-        
-        
+     
         anim.SetTrigger("Throw");
-        GameObject projectile = Instantiate(KeyboardPrefab, transform.position + throwPosition, Quaternion.identity);
+        GameObject projectile = Instantiate(prefab, player.transform.position + throwPosition, Quaternion.identity);
 
-        Vector3 direction = (lineRenderer.GetPosition(1) - transform.position).normalized;
+        Vector3 direction = (lineRenderer.GetPosition(1) - player.transform.position).normalized;
 
         Rigidbody2D projectileRb = projectile.GetComponent<Rigidbody2D>();
         float windForce = windDirection ? windStrength : -windStrength;
-        Debug.Log(windForce + "windforce");
         Vector3 force = direction * currentThrowForce + new Vector3(windForce, 0, 0);
         
-        Debug.Log(force + "force");
         projectileRb.AddForce(force, ForceMode2D.Impulse);
 
         Weapon keyboardScript = projectile.GetComponent<Weapon>();
         keyboardScript.owner = this;
-        keyboardScript.isLive=true;
+        keyboardScript.isLive = true;
 
         currentThrowForce = 0f;
         slider.value = 0f;
         lineRenderer.enabled = false;
-        Debug.Log("좀 잘해봐");
         StartCoroutine(AfterSecondsAndStand(2f));
     }
- 
+
     void UpdateLineRenderer(GameObject player, LineRenderer lineRenderer)
     {
         lineRenderer.enabled = true;
@@ -250,11 +305,9 @@ public class PlayerInput : MonoBehaviour
             if (105f < angle && angle < 165f)
             {
                 Vector3 endPoint = player.transform.position + Quaternion.Euler(0f, 0f, angle) * Vector3.right * 6f;
-
                 lineRenderer.SetPositions(new Vector3[] { player.transform.position, endPoint });
             }
         }
-
     }
 
     public void ProcessCollision(Collision2D collision, string collisionPoint)
@@ -267,7 +320,6 @@ public class PlayerInput : MonoBehaviour
 
         if (weapon != null && weapon.isLive == true && weapon.owner != this)
         {
-            
             weapon.isLive = false;
             Vector3 collisionVelocity = collision.relativeVelocity;
 
@@ -277,14 +329,68 @@ public class PlayerInput : MonoBehaviour
         }
     }
 
+    void ThrowProjectileTwice(GameObject player, Slider slider, LineRenderer lineRenderer, ref float currentThrowForce, GameObject prefab)
+    {
+        if (player == meemee)
+            throwPosition = new Vector3(2f, 1, 0);
+        else throwPosition = new Vector3(-2f, 1, 0);
+        for (int i = 0; i < 2; i++)
+        {
+            GameObject projectile = Instantiate(prefab, transform.position + throwPosition, Quaternion.identity);
 
-    
-     IEnumerator AfterSecondsAndStand(float seconds)
+            Vector3 direction = (lineRenderer.GetPosition(1) - transform.position).normalized;
+
+            Rigidbody2D projectileRb = projectile.GetComponent<Rigidbody2D>();
+            float windForce = windDirection ? windStrength : -windStrength;
+            Vector3 force = direction * currentThrowForce + new Vector3(windForce, 0, 0);
+            projectileRb.AddForce(force, ForceMode2D.Impulse);
+
+            Weapon keyboardScript = projectile.GetComponent<Weapon>();
+            keyboardScript.owner = this;
+            keyboardScript.isLive = true;
+        }
+
+        currentThrowForce = 0f;
+        slider.value = 0f;
+        lineRenderer.enabled = false;
+    }
+
+    public void SetIsSelectingItem(bool value)
+    {
+        isSelectingItem = value;
+    }
+
+    public void AddItemButton(Button itemButton)
+    {
+        itemButtons.Add(itemButton);
+    }
+
+    public void DisableSelectedItemButton()
+    {
+        if (selectedItemButton != null)
+        {
+            selectedItemButton.interactable = false;
+        }
+    }
+
+
+    private void OnItemButtonClick(Button itemButton)
+    {
+        if (!isSelectingItem)
+        {
+            return;
+        }
+
+        SetIsSelectingItem(false);
+        DisableSelectedItemButton();
+        selectedItemButton = itemButton;
+    }
+
+    IEnumerator AfterSecondsAndStand(float seconds)
     {
         yield return new WaitForSeconds(seconds);
         if (!isMoving)
             anim.SetTrigger("Stand");
-    }
 
     IEnumerator AfterSecondsAndLoadScene(float seconds, string sceneName)
     {
