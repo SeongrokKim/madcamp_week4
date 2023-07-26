@@ -55,6 +55,7 @@ public class PlayerInput : MonoBehaviour
     {
         get { return isSelectingItem; }
         set { isSelectingItem = value; }
+    }
 
     public float speed = 5f; // 이동 속도
     public float minX = -1f; // x축으로 이동할 수 있는 최소값
@@ -109,18 +110,8 @@ public class PlayerInput : MonoBehaviour
         {
             StartCoroutine(AfterSecondsAndStand(2f));
 
-        }
-        if (currentPlayer % 2 == 1)
-            isMouseClickedMeemee = true;
-        else if (currentPlayer % 2 == 0)
-        {
-            isMouseClickedRokrok = true;
-            if (currentPlayer == 0)
-            {
-                isMouseClickedMeemee = true;
-            }
-        }
 
+        }
     }
 
     void SetPlayerPosition(float newX)
@@ -133,7 +124,7 @@ public class PlayerInput : MonoBehaviour
     private void Update()
     {
         RaycastHit2D hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(Input.mousePosition), Vector2.zero);
-        if (hit.collider != null && hit.collider.CompareTag("DoubleThrowItemy"))
+        if (hit.collider != null && hit.collider.CompareTag("DoubleThrowItem"))
         {
             isItemClicked = true;
             return;
@@ -391,6 +382,7 @@ public class PlayerInput : MonoBehaviour
         yield return new WaitForSeconds(seconds);
         if (!isMoving)
             anim.SetTrigger("Stand");
+    }
 
     IEnumerator AfterSecondsAndLoadScene(float seconds, string sceneName)
     {
@@ -398,4 +390,5 @@ public class PlayerInput : MonoBehaviour
         SceneManager.LoadScene(sceneName);
     }
 
+    
 }
