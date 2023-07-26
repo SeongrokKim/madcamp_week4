@@ -18,8 +18,6 @@ public class PlayerInput : MonoBehaviour
     public LineRenderer lineRenderer1;
     public LineRenderer lineRenderer2;
 
-    public float minAngle = 15f;
-    public float maxAngle = 75f;
     private bool isMouseClicked = false;
 
     public int currentPlayer = 0;
@@ -29,7 +27,6 @@ public class PlayerInput : MonoBehaviour
 
     private bool isMouseClickedMeemee = false;
     private bool isMouseClickedRokrok = false;
-
 
     public float playerHealth;
     public float maxHealth = 100f;
@@ -53,29 +50,33 @@ public class PlayerInput : MonoBehaviour
     public DoubleThrowItem doubleThrowItem;
 
     public GameObject itemButtonPrefab;
-    public float speed = 5f; // �̵� �ӵ�
-    public float minX = -1f; // x������ �̵��� �� �ִ� �ּҰ�
-    public float maxX = 1f; // x������ �̵��� �� �ִ� �ִ밪
-    Animator anim;
-    void Awake()
-    {
-        anim = GetComponent<Animator>();
-    }
 
     public bool IsSelectingItem
     {
         get { return isSelectingItem; }
         set { isSelectingItem = value; }
+
+    public float speed = 5f; // 이동 속도
+    public float minX = -1f; // x축으로 이동할 수 있는 최소값
+    public float maxX = 1f; // x축으로 이동할 수 있는 최대값
+    Animator anim;
+    private bool isMoving = false; 
+    void Awake()
+    {
+        anim=GetComponent<Animator>();
+
     }
 
     private void Start()
     {
         playerHealth = maxHealth;
+
         throwSlider1.value = 0f;
 
         lineRenderer1.SetPositions(new Vector3[] { transform.position, transform.position });
 
         lineRenderer1.material = new Material(Shader.Find("Sprites/Default"));
+
         throwSlider2.value = 0f;
 
         lineRenderer2.SetPositions(new Vector3[] { transform.position, transform.position });
@@ -85,6 +86,7 @@ public class PlayerInput : MonoBehaviour
         lineRenderer2.enabled = false;
 
         windStrength = Random.Range(10, 300);
+
         windDirection = (Random.value > 0.5f);
 
         Instance = this;
@@ -106,6 +108,7 @@ public class PlayerInput : MonoBehaviour
         else
         {
             StartCoroutine(AfterSecondsAndStand(2f));
+
         }
         if (currentPlayer % 2 == 1)
             isMouseClickedMeemee = true;
@@ -117,6 +120,14 @@ public class PlayerInput : MonoBehaviour
                 isMouseClickedMeemee = true;
             }
         }
+
+    }
+
+    void SetPlayerPosition(float newX)
+    {
+        newX = Mathf.Clamp(newX, minX, maxX);
+        transform.position = new Vector3(newX, transform.position.y, transform.position.z);
+
     }
 
     private void Update()
@@ -127,6 +138,28 @@ public class PlayerInput : MonoBehaviour
             isItemClicked = true;
             return;
         }
+
+        float moveX = 0f;
+        if (meemee != null)
+        {
+            if (Input.GetKey(KeyCode.A)) moveX = -1f;
+            else if (Input.GetKey(KeyCode.D)) moveX = 1f;
+        }
+        else
+        {
+            if (Input.GetKey(KeyCode.LeftArrow)) moveX = -1f;
+            else if (Input.GetKey(KeyCode.RightArrow)) moveX = 1f;
+        }
+
+        // 플레이어의 새로운 X 좌표를 계산
+        float newX = transform.position.x + moveX * speed * Time.deltaTime;
+
+        // 플레이어가 움직이는지 여부를 업데이트
+        isMoving = moveX != 0;
+
+        // 새로운 X 좌표를 범위 내로 제한하여 플레이어를 이동시킴
+        SetPlayerPosition(newX);
+
 
         if (Input.GetMouseButtonDown(0))
         {
@@ -142,7 +175,6 @@ public class PlayerInput : MonoBehaviour
             }
 
             currentPlayer = currentPlayer + 1;
-            Debug.Log(currentPlayer + "============");
         }
 
         if (currentPlayer % 2 == 1)
@@ -170,9 +202,11 @@ public class PlayerInput : MonoBehaviour
     }
 
     private void PlayerAction(GameObject player, Slider slider, LineRenderer lineRenderer, bool isMouseClicked, ref float currentThrowForce, GameObject prefab)
+
     {
         if (Input.GetMouseButton(0) && isCharging == true && isMouseClicked)
         {
+            
             ChargeThrow(slider, ref currentThrowForce);
             if (currentThrowForce >= maxThrowForce)
             {
@@ -207,6 +241,7 @@ public class PlayerInput : MonoBehaviour
             {
                 isCharging = true;
             }
+
             isMouseClicked = false;
             currentThrowForce = 0f;
             windStrength = Random.Range(10, 300);
@@ -222,11 +257,13 @@ public class PlayerInput : MonoBehaviour
 
     }
     public void ThrowProjectile(GameObject player, Slider slider, LineRenderer lineRenderer, ref float currentThrowForce, GameObject prefab)
+
     {
         if (player == meemee)
             throwPosition = new Vector3(2f, 1, 0);
         else throwPosition = new Vector3(-2f, 1, 0);
-
+     
+        anim.SetTrigger("Throw");
         GameObject projectile = Instantiate(prefab, player.transform.position + throwPosition, Quaternion.identity);
 
         Vector3 direction = (lineRenderer.GetPosition(1) - player.transform.position).normalized;
@@ -234,6 +271,7 @@ public class PlayerInput : MonoBehaviour
         Rigidbody2D projectileRb = projectile.GetComponent<Rigidbody2D>();
         float windForce = windDirection ? windStrength : -windStrength;
         Vector3 force = direction * currentThrowForce + new Vector3(windForce, 0, 0);
+        
         projectileRb.AddForce(force, ForceMode2D.Impulse);
 
         Weapon keyboardScript = projectile.GetComponent<Weapon>();
@@ -258,6 +296,7 @@ public class PlayerInput : MonoBehaviour
             if (15f < angle && angle < 75f)
             {
                 Vector3 endPoint = player.transform.position + Quaternion.Euler(0f, 0f, angle) * Vector3.right * 6f;
+
                 lineRenderer.SetPositions(new Vector3[] { player.transform.position, endPoint });
             }
         }
@@ -273,8 +312,11 @@ public class PlayerInput : MonoBehaviour
 
     public void ProcessCollision(Collision2D collision, string collisionPoint)
     {
-        Debug.Log("PlayerInput?�서 충돌 ���리");
         Weapon weapon = collision.gameObject.GetComponent<Weapon>();
+        
+        Debug.Log(weapon);
+        Debug.Log(weapon.owner+ "owner");
+        Debug.Log(weapon.isLive);
 
         if (weapon != null && weapon.isLive == true && weapon.owner != this)
         {
@@ -284,8 +326,6 @@ public class PlayerInput : MonoBehaviour
             int damage = weapon.CalculateDamage(collisionPoint, collisionVelocity);
 
             TakeDamage(damage);
-            Debug.Log(collisionVelocity + "===== collisionVelocity");
-            Debug.Log(damage + "===== damage");
         }
     }
 
@@ -349,14 +389,13 @@ public class PlayerInput : MonoBehaviour
     IEnumerator AfterSecondsAndStand(float seconds)
     {
         yield return new WaitForSeconds(seconds);
-        anim.SetTrigger("Stand");
-    }
+        if (!isMoving)
+            anim.SetTrigger("Stand");
 
     IEnumerator AfterSecondsAndLoadScene(float seconds, string sceneName)
     {
         yield return new WaitForSeconds(seconds);
         SceneManager.LoadScene(sceneName);
     }
-
 
 }
