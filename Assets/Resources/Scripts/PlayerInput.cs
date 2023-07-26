@@ -37,6 +37,15 @@ public class PlayerInput : MonoBehaviour
 
     public float windStrength;
     public bool windDirection;
+    public float speed = 5f; // 이동 속도
+    public float minX = -1f; // x축으로 이동할 수 있는 최소값
+    public float maxX = 1f; // x축으로 이동할 수 있는 최대값
+    Animator anim;
+    private bool isMoving = false; 
+    void Awake()
+    {
+        anim=GetComponent<Animator>();
+    }
 
     private void Start()
     {
@@ -64,17 +73,51 @@ public class PlayerInput : MonoBehaviour
 
     public void TakeDamage(int damage)
     {
+        if (damage <= 0) return;
+
+        anim.SetTrigger("Hit");
         playerHealth -= damage;
+
         if (playerHealth <= 0)
         {
             Debug.Log("Player is dead.");
-            SceneManager.LoadScene("GameOver");
+            StartCoroutine(AfterSecondsAndLoadScene(2f, "GameOver"));
         }
+        else
+        {
+            StartCoroutine(AfterSecondsAndStand(2f));
+        }
+    }
 
+    void SetPlayerPosition(float newX)
+    {
+        newX = Mathf.Clamp(newX, minX, maxX);
+        transform.position = new Vector3(newX, transform.position.y, transform.position.z);
     }
 
     private void Update()
     {
+        float moveX = 0f;
+        if (meemee != null)
+        {
+            if (Input.GetKey(KeyCode.A)) moveX = -1f;
+            else if (Input.GetKey(KeyCode.D)) moveX = 1f;
+        }
+        else
+        {
+            if (Input.GetKey(KeyCode.LeftArrow)) moveX = -1f;
+            else if (Input.GetKey(KeyCode.RightArrow)) moveX = 1f;
+        }
+
+        // 플레이어의 새로운 X 좌표를 계산
+        float newX = transform.position.x + moveX * speed * Time.deltaTime;
+
+        // 플레이어가 움직이는지 여부를 업데이트
+        isMoving = moveX != 0;
+
+        // 새로운 X 좌표를 범위 내로 제한하여 플레이어를 이동시킴
+        SetPlayerPosition(newX);
+
         if (Input.GetMouseButtonDown(0))
         {
             if (currentPlayer % 2 == 1)
@@ -90,6 +133,8 @@ public class PlayerInput : MonoBehaviour
 
             currentPlayer = currentPlayer + 1;
         }
+
+        
 
         if (currentPlayer % 2 == 1)
         {
@@ -118,9 +163,11 @@ public class PlayerInput : MonoBehaviour
     {
         if (Input.GetMouseButton(0) && isCharging == true && isMouseClicked)
         {
+            
             ChargeThrow(slider, ref currentThrowForce);
             if (currentThrowForce >= maxThrowForce)
             {
+                
                 ThrowProjectile(player, slider, lineRenderer, ref currentThrowForce);
                 isCharging = false;
 
@@ -156,6 +203,9 @@ public class PlayerInput : MonoBehaviour
         if (player == meemee)
             throwPosition = new Vector3(2f, 1, 0);
         else throwPosition = new Vector3(-2f, 1, 0);
+        
+        
+        anim.SetTrigger("Throw");
         GameObject projectile = Instantiate(KeyboardPrefab, transform.position + throwPosition, Quaternion.identity);
 
         Vector3 direction = (lineRenderer.GetPosition(1) - transform.position).normalized;
@@ -175,6 +225,8 @@ public class PlayerInput : MonoBehaviour
         currentThrowForce = 0f;
         slider.value = 0f;
         lineRenderer.enabled = false;
+        Debug.Log("좀 잘해봐");
+        StartCoroutine(AfterSecondsAndStand(2f));
     }
  
     void UpdateLineRenderer(GameObject player, LineRenderer lineRenderer)
@@ -207,7 +259,6 @@ public class PlayerInput : MonoBehaviour
 
     public void ProcessCollision(Collision2D collision, string collisionPoint)
     {
-        Debug.Log("PlayerInput에서 충돌 처리");
         Weapon weapon = collision.gameObject.GetComponent<Weapon>();
         
         Debug.Log(weapon);
@@ -223,10 +274,22 @@ public class PlayerInput : MonoBehaviour
             int damage = weapon.CalculateDamage(collisionPoint, collisionVelocity);
 
             TakeDamage(damage);
-            Debug.Log(collisionVelocity + "===== collisionVelocity");
-            Debug.Log(damage + "===== damage");
         }
     }
 
+
+    
+     IEnumerator AfterSecondsAndStand(float seconds)
+    {
+        yield return new WaitForSeconds(seconds);
+        if (!isMoving)
+            anim.SetTrigger("Stand");
+    }
+
+    IEnumerator AfterSecondsAndLoadScene(float seconds, string sceneName)
+    {
+        yield return new WaitForSeconds(seconds);
+        SceneManager.LoadScene(sceneName);
+    }
 
 }
