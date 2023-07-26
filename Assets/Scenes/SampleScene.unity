@@ -255,8 +255,9 @@ GameObject:
   - component: {fileID: 143965967}
   - component: {fileID: 143965966}
   - component: {fileID: 143965965}
+  - component: {fileID: 143965968}
   m_Layer: 0
-  m_Name: meemee (1)
+  m_Name: rokrok
   m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -283,10 +284,10 @@ MonoBehaviour:
   meemee: {fileID: 0}
   rokrok: {fileID: 143965964}
   playerHealth: 100
-  maxHealth: 100
+  maxHealth: 1000
   throwPosition: {x: 0, y: 0, z: 0}
   windStrength: 0
-  windDirection: 0
+  windDirection: 1
 --- !u!212 &143965966
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -328,12 +329,12 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: 3fd8de634e3d9e8429bbf18584f62797, type: 3}
+  m_Sprite: {fileID: 576577154, guid: 6dc47b776bdb0084f85af9d6dd6ece55, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_FlipX: 1
+  m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 10, y: 16.67}
+  m_Size: {x: 2.1102765, y: 3.44}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -347,8 +348,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 143965964}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 11.0653, y: -3.7479, z: 0}
-  m_LocalScale: {x: 0.18383734, y: 0.12563388, z: 1}
+  m_LocalPosition: {x: 7.16, y: -2.64, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1966076027}
@@ -356,6 +357,27 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!95 &143965968
+Animator:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 143965964}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 22100000, guid: 37c16ce95aa32f247955696e52914876, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &189270470
 GameObject:
   m_ObjectHideFlags: 0
@@ -1139,6 +1161,7 @@ GameObject:
   - component: {fileID: 597540827}
   - component: {fileID: 597540826}
   - component: {fileID: 597540828}
+  - component: {fileID: 597540829}
   m_Layer: 0
   m_Name: meemee
   m_TagString: Player
@@ -1187,12 +1210,12 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: 3fd8de634e3d9e8429bbf18584f62797, type: 3}
+  m_Sprite: {fileID: -411166100, guid: 6dc47b776bdb0084f85af9d6dd6ece55, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_FlipX: 0
+  m_FlipX: 1
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 10, y: 16.67}
+  m_Size: {x: 2.880377, y: 3.45}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -1206,8 +1229,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 597540824}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -11.1767, y: -3.7965, z: 0}
-  m_LocalScale: {x: 0.15955871, y: 0.11979752, z: 1}
+  m_LocalPosition: {x: -7.08, y: -2.88, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 961091981}
@@ -1236,10 +1259,31 @@ MonoBehaviour:
   meemee: {fileID: 597540824}
   rokrok: {fileID: 0}
   playerHealth: 100
-  maxHealth: 100
+  maxHealth: 1000
   throwPosition: {x: 0, y: 0, z: 0}
   windStrength: 0
   windDirection: 0
+--- !u!95 &597540829
+Animator:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 597540824}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 6d5d6b6306fa5d34f91f8add80d3526e, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &614859210
 GameObject:
   m_ObjectHideFlags: 0
@@ -1577,8 +1621,8 @@ Transform:
   m_GameObject: {fileID: 676388262}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_LocalScale: {x: 0.2, y: 0.2, z: 0.2}
+  m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 143965967}
   m_RootOrder: -1
@@ -2169,8 +2213,8 @@ Transform:
   m_GameObject: {fileID: 961091980}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_LocalScale: {x: 0.3, y: 0.3, z: 0.3}
+  m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 597540827}
   m_RootOrder: -1
@@ -2207,9 +2251,9 @@ CapsuleCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: -1, y: 4}
-  m_Size: {x: 7.2, y: 1}
-  m_Direction: 0
+  m_Offset: {x: 0, y: 3}
+  m_Size: {x: 8, y: 5}
+  m_Direction: 1
 --- !u!114 &961091984
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2407,8 +2451,8 @@ Transform:
   m_GameObject: {fileID: 1479853492}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_LocalScale: {x: 0.2, y: 0.2, z: 0.2}
+  m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 597540827}
   m_RootOrder: -1
@@ -2867,8 +2911,8 @@ Transform:
   m_GameObject: {fileID: 1966076026}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_LocalScale: {x: 0.3, y: 0.3, z: 0.3}
+  m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 143965967}
   m_RootOrder: -1
@@ -2905,9 +2949,9 @@ CapsuleCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 1, y: 4}
-  m_Size: {x: 7.2, y: 1}
-  m_Direction: 0
+  m_Offset: {x: 0, y: 2.8}
+  m_Size: {x: 8, y: 5}
+  m_Direction: 1
 --- !u!114 &1966076030
 MonoBehaviour:
   m_ObjectHideFlags: 0

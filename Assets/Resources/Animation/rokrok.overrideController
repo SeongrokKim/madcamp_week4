@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!221 &22100000
+AnimatorOverrideController:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: rokrok
+  m_Controller: {fileID: 9100000, guid: 6d5d6b6306fa5d34f91f8add80d3526e, type: 2}
+  m_Clips:
+  - m_OriginalClip: {fileID: 7400000, guid: 41e2c82550c03ef46bdbd950bc1cb30d, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: 68e33a47f35121242b03d18d9ee1a9e1, type: 2}
+  - m_OriginalClip: {fileID: 7400000, guid: 590b04361a1aa504c91b54d10bccfec0, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: 8d046d6bccc14ae40a7e35f0953385df, type: 2}
+  - m_OriginalClip: {fileID: 7400000, guid: 5a056d6be478e1a48b4382a36c54205f, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: 203f6cf10108f10469edf4e8ac5240a1, type: 2}
+  - m_OriginalClip: {fileID: 7400000, guid: c41d685e60363254e9b037a1e63ee106, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: 14c999ade9a75fb47935f4e201d31f59, type: 2}
