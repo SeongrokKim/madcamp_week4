@@ -75,13 +75,9 @@ public class PlayerInput : MonoBehaviour
 
         lineRenderer1.SetPositions(new Vector3[] { transform.position, transform.position });
 
-        lineRenderer1.material = new Material(Shader.Find("Sprites/Default"));
-
         throwSlider2.value = 0f;
 
         lineRenderer2.SetPositions(new Vector3[] { transform.position, transform.position });
-
-        lineRenderer2.material = new Material(Shader.Find("Sprites/Default"));
 
         lineRenderer2.enabled = false;
 
