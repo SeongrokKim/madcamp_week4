@@ -73,11 +73,13 @@ public class PlayerInput : MonoBehaviour
 
         throwSlider1.value = 0f;
 
+
         lineRenderer1.SetPositions(new Vector3[] { transform.position+ new Vector3(-4f, -3, 0), new Vector3(-4f, -3, 0)});
 
         throwSlider2.value = 0f;
 
         lineRenderer2.SetPositions(new Vector3[] {  new Vector3(5f, -3, 0),  new Vector3(5f, -3, 0) });
+
 
         lineRenderer2.enabled = false;
 

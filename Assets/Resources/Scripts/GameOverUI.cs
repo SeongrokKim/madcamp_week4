@@ -14,7 +14,7 @@ public class GameOverUI : MonoBehaviour
 
     public void RetryGame()
     {
-        SceneManager.LoadScene("PlayerInput");
+        SceneManager.LoadScene("SampleScene");
     }
 
     // 'Main Menu' 버튼을 클릭하면 호출될 함수
