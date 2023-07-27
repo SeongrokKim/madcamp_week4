@@ -33,8 +33,7 @@ public class PlayerInput : MonoBehaviour
 
     public Vector3 throwPosition;
 
-    public float windStrength;
-    public bool windDirection;
+    
 
     public bool useDoubleThrowItem = false;
 
@@ -85,10 +84,6 @@ public class PlayerInput : MonoBehaviour
         lineRenderer2.material = new Material(Shader.Find("Sprites/Default"));
 
         lineRenderer2.enabled = false;
-
-        windStrength = Random.Range(10, 300);
-
-        windDirection = (Random.value > 0.5f);
 
         Instance = this;
         doubleThrowItem = GetComponent<DoubleThrowItem>();
@@ -234,8 +229,6 @@ public class PlayerInput : MonoBehaviour
 
             isMouseClicked = false;
             currentThrowForce = 0f;
-            windStrength = Random.Range(10, 300);
-            windDirection = (Random.value > 0.5f);
         }
     }
 
@@ -253,25 +246,25 @@ public class PlayerInput : MonoBehaviour
         else throwPosition = new Vector3(-2f, 1, 0);
      
         anim.SetTrigger("Throw");
-        Debug.Log("1");
         GameObject projectile = Instantiate(prefab, player.transform.position + throwPosition, Quaternion.identity);
 
         Vector3 direction = (lineRenderer.GetPosition(1) - player.transform.position).normalized;
-
+        Debug.Log("여긴 됌");
         Rigidbody2D projectileRb = projectile.GetComponent<Rigidbody2D>();
-        float windForce = windDirection ? windStrength : -windStrength;
+        float windForce = Wind.GetWind();
+        Debug.Log("여긴 됌2");
         Vector3 force = direction * currentThrowForce + new Vector3(windForce, 0, 0);
+        Debug.Log("여긴 됌3");
         
+        Debug.Log(force+"force");
         projectileRb.AddForce(force, ForceMode2D.Impulse);
-        Debug.Log("2");
         Weapon keyboardScript = projectile.GetComponent<Weapon>();
         keyboardScript.owner = this;
         keyboardScript.isLive = true;
-        Debug.Log("3");
         currentThrowForce = 0f;
         slider.value = 0f;
         lineRenderer.enabled = false;
-        Debug.Log("4");
+        Debug.Log(slider.value);
         StartCoroutine(AfterSecondsAndStand(2f));
     }
 
@@ -332,7 +325,7 @@ public class PlayerInput : MonoBehaviour
             Vector3 direction = (lineRenderer.GetPosition(1) - transform.position).normalized;
 
             Rigidbody2D projectileRb = projectile.GetComponent<Rigidbody2D>();
-            float windForce = windDirection ? windStrength : -windStrength;
+            float windForce = Wind.GetWind();
             Vector3 force = direction * currentThrowForce + new Vector3(windForce, 0, 0);
             projectileRb.AddForce(force, ForceMode2D.Impulse);
 
