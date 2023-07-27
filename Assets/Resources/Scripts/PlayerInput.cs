@@ -73,15 +73,11 @@ public class PlayerInput : MonoBehaviour
 
         throwSlider1.value = 0f;
 
-        lineRenderer1.SetPositions(new Vector3[] { transform.position, transform.position });
-
-        lineRenderer1.material = new Material(Shader.Find("Sprites/Default"));
+        lineRenderer1.SetPositions(new Vector3[] { transform.position+ new Vector3(-4f, -3, 0), new Vector3(-4f, -3, 0)});
 
         throwSlider2.value = 0f;
 
-        lineRenderer2.SetPositions(new Vector3[] { transform.position, transform.position });
-
-        lineRenderer2.material = new Material(Shader.Find("Sprites/Default"));
+        lineRenderer2.SetPositions(new Vector3[] {  new Vector3(5f, -3, 0),  new Vector3(5f, -3, 0) });
 
         lineRenderer2.enabled = false;
 
@@ -117,6 +113,7 @@ public class PlayerInput : MonoBehaviour
 
     private void Update()
     {
+        
         RaycastHit2D hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(Input.mousePosition), Vector2.zero);
         if (hit.collider != null && hit.collider.CompareTag("DoubleThrowItem"))
         {
