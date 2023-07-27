@@ -1,6 +1,6 @@
 # Mimi & Rokrok
 
-> Week4 4분반 Team: LookMe
+> Week4 4분반 Team: LookAtMe
 
 
 * 2인용 포트리스 종류의 게임
