@@ -110,7 +110,6 @@ public class PlayerInput : MonoBehaviour
         {
             StartCoroutine(AfterSecondsAndStand(2f));
 
-
         }
     }
 
@@ -248,13 +247,13 @@ public class PlayerInput : MonoBehaviour
 
     }
     public void ThrowProjectile(GameObject player, Slider slider, LineRenderer lineRenderer, ref float currentThrowForce, GameObject prefab)
-
     {
         if (player == meemee)
             throwPosition = new Vector3(2f, 1, 0);
         else throwPosition = new Vector3(-2f, 1, 0);
      
         anim.SetTrigger("Throw");
+        Debug.Log("1");
         GameObject projectile = Instantiate(prefab, player.transform.position + throwPosition, Quaternion.identity);
 
         Vector3 direction = (lineRenderer.GetPosition(1) - player.transform.position).normalized;
@@ -264,14 +263,15 @@ public class PlayerInput : MonoBehaviour
         Vector3 force = direction * currentThrowForce + new Vector3(windForce, 0, 0);
         
         projectileRb.AddForce(force, ForceMode2D.Impulse);
-
+        Debug.Log("2");
         Weapon keyboardScript = projectile.GetComponent<Weapon>();
         keyboardScript.owner = this;
         keyboardScript.isLive = true;
-
+        Debug.Log("3");
         currentThrowForce = 0f;
         slider.value = 0f;
         lineRenderer.enabled = false;
+        Debug.Log("4");
         StartCoroutine(AfterSecondsAndStand(2f));
     }
 
@@ -380,8 +380,8 @@ public class PlayerInput : MonoBehaviour
     IEnumerator AfterSecondsAndStand(float seconds)
     {
         yield return new WaitForSeconds(seconds);
-        if (!isMoving)
-            anim.SetTrigger("Stand");
+        anim.ResetTrigger("Throw");
+        anim.SetTrigger("Stand");
     }
 
     IEnumerator AfterSecondsAndLoadScene(float seconds, string sceneName)
